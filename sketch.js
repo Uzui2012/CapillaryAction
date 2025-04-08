@@ -22,73 +22,108 @@ function initGrid() {
     grid = make2DArray(cols, rows)
 }
 
+// let stateB = grid[i][j+1];
+// let stateL = grid[i-1][j];
+// let stateR = grid[i+1][j];
+// let stateBL = grid[i-1][j+1];
+// let stateBR = grid[i+1][j+1];
+
+// if(stateB == 0){
+//     if(nextGrid[i][j+1] == 0){
+//         nextGrid[i][j+1] = 1;
+//     }else{
+//         nextGrid[i][j] = 1
+//     }
+// }else{
+    
+    
+    // }else if(!stateL && !stateR && (stateBL || stateBR)){
+    //     let dir;
+    //     if(getRandomInt(2) == 0){
+    //         dir = -1
+    //     }else{
+    //         dir = 1
+    //     }
+    //     nextGrid[i + dir][j] = 1;
+//}
+
+let falling = 2;
+let static = 1;
+
 function getNextGrid() {
     let nextGrid = make2DArray(cols, rows)
     for(let i = 0; i < cols; i++){
         for(let j = 0; j < rows; j++){
             let state = grid[i][j];
             
-            if(state == 1){
-                // Move
+            if(state == 1){ // Liquid is currently not in freefall
+                // Check if liquid is now in freefall
+                
+                
                 if(j+1 >= rows){
-                    nextGrid[i][j] = state;
+                    nextGrid[i][j] = 1;
                 }else{
-                    if(i-1 < 0 || i+1 == cols){
-                        if(grid[i][j+1] == 0){
-                            nextGrid[i][j+1] = 1;
+                    // LIQUID PIXEL IS STATIC NOW HANDLE CLOSE RANGE
+
+                    // Left Edge
+                    if(i-1 < 0){
+                        let stateR = grid[i+1][j];
+                        let stateBR = grid[i+1][j+1];
+                        let stateAR = grid[i+1][j-1];
+                        
+                        
+
+                        if(stateBR > 0 && stateR === 0 && stateAR === 0){
+                            nextGrid[i+1][j] = static;
+                        }else if(grid[i][j+1] === 0){
+                            nextGrid[i][j+1] = 2;
                         }else{
-                            nextGrid[i][j] = 1;
+                            nextGrid[i][j] = static;
                         }
+                        
+                        
+                    }else if(i+1 >= cols){
+                        let stateL = grid[i-1][j];
+                        let stateBL = grid[i-1][j+1];
+                        // if(stateL === 0 && stateBL > 0){
+                        //     nextGrid[i-1][j] = 1;
+                        // }else{
+                        //     nextGrid[i][j+1] = 1;
+                        // }
                     }else{
-                        let stateB = grid[i][j+1];
                         let stateL = grid[i-1][j];
                         let stateR = grid[i+1][j];
                         let stateBL = grid[i-1][j+1];
                         let stateBR = grid[i+1][j+1];
+                        let stateAL = grid[i-1][j-1];
+                        let stateAR = grid[i+1][j-1];
 
-                        if(stateB == 0){
-                            nextGrid[i][j+1] = 1;
-                            console.log(1);
-                        }else{
-                            if(!stateL && stateR && stateBL && stateBR){
-                                nextGrid[i - 1][j] = 1;
-                            }else if(stateL && !stateR && stateBL && stateBR){
-                                nextGrid[i + 1][j] = 1;
-                            }else if(!stateL && !stateR && !stateBL && stateBR){
-                                nextGrid[i - 1][j + 1] = 1;
-                            }else if(!stateL && !stateR && stateBL && !stateBR){
-                                nextGrid[i + 1][j + 1] = 1;
-                            
-                            // Falls as a cube
-
-                            }else if(stateL && !stateR && stateBL && !stateBR){
-                                nextGrid[i + 1][j + 1] = 1;
-                            }else if(!stateL && stateR && !stateBL && stateBR){
-                                nextGrid[i - 1][j + 1] = 1;
-
-                            }else if(stateL && !stateR && !stateBL && stateBR){
-                                nextGrid[i][j] = 1;
-
-                            }else if(!stateL && stateR && stateBL && !stateBR){
-                                nextGrid[i][j] = 1;
-                            
-
-                            }else if(!stateL && !stateR && stateBL && stateBR){
-                                let dir;
-                                if(getRandomInt(2) == 0){
-                                    dir = -1
-                                }else{
-                                    dir = 1
-                                }
-                                nextGrid[i + dir][j] = 1;
-                                //console.log("random");
-                            }else{
-                                nextGrid[i][j] = 1;
-                            }
-                        }
+                        nextGrid[i][j] = 1;
+                        
+                        
                     }
                 }
-                
+            }else if(state == 2){ // Liquid is currently in freefall
+                if(j+1 >= rows){
+                    nextGrid[i][j] = static;
+                }else{
+                    let freefallFlag = true;
+                    for(let k = j+1; k <= rows; k++){
+                        if(grid[i][k] === 0){
+                            freefallFlag = true;
+                            break;
+                        }else{
+                            freefallFlag = false;
+                            console.log("Not in freefall", k);
+                        }
+                    }
+                    if(!freefallFlag){
+                        nextGrid[i][j] = static;
+                    }else{
+                        nextGrid[i][j+1] = falling;
+                    }
+                }
+
             }
         }
     }
@@ -120,7 +155,7 @@ function mouseDragged() {
     for(let i = colStart; i < colStart + mSize; i++){
         for(let j = rowStart; j < rowStart + mSize; j++){
             if (withinCols(colStart) && withinRows(rowStart)) {
-                grid[colStart][rowStart] = 1
+                grid[colStart][rowStart] = 2;
             }
             
         }
@@ -133,9 +168,6 @@ function setup() {
     createCanvas(500, 500);
     frameRate(5);
     initGrid();
-
-    
-    
     //grid = getNextGrid();
 }
 
@@ -145,13 +177,13 @@ function draw() {
     for (let i = 0; i < cols; i++){
         for (let j = 0; j < rows; j++){
             stroke(255);
-            if(grid[i][j] > 0){
+            if(grid[i][j] == 1){
                 fill(255);
-            }
-             else if(grid[i][j] == 0){
+            }else if(grid[i][j] == 2){
+                 fill(100);
+            }else if(grid[i][j] == 0){
                  fill(0);
-            }
-            else{
+            }else{
                 fill(180);
             }
             let x = i * squareWidth;
