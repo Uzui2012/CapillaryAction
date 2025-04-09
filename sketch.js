@@ -49,6 +49,7 @@ function initGrid() {
 
 let falling = 2;
 let static = 1;
+let empty = 0;
 
 function getNextGrid() {
     let nextGrid = make2DArray(cols, rows)
@@ -60,7 +61,7 @@ function getNextGrid() {
                 // Check if liquid is now in freefall
                 
                 
-                if(j+1 >= rows){
+                if(j+1 > rows){
                     nextGrid[i][j] = 1;
                 }else{
                     // LIQUID PIXEL IS STATIC NOW HANDLE CLOSE RANGE
@@ -70,26 +71,34 @@ function getNextGrid() {
                         let stateR = grid[i+1][j];
                         let stateBR = grid[i+1][j+1];
                         let stateAR = grid[i+1][j-1];
-                        
+                        let below = grid[i][j+1];
                         
 
-                        if(stateBR > 0 && stateR === 0 && stateAR === 0){
+                        if(stateBR > 0 && stateR === 0 && stateAR === 0 && below === static){
                             nextGrid[i+1][j] = static;
                         }else if(grid[i][j+1] === 0){
-                            nextGrid[i][j+1] = 2;
+                            nextGrid[i][j+1] = falling;
                         }else{
                             nextGrid[i][j] = static;
                         }
                         
                         
+                    // Right Edge
                     }else if(i+1 >= cols){
                         let stateL = grid[i-1][j];
                         let stateBL = grid[i-1][j+1];
-                        // if(stateL === 0 && stateBL > 0){
-                        //     nextGrid[i-1][j] = 1;
-                        // }else{
-                        //     nextGrid[i][j+1] = 1;
-                        // }
+                        let stateAL = grid[i-1][j-1];
+                        let below = grid[i][j+1];
+
+                        if(stateBL > 0 && stateL === 0 && stateAL === 0 && below === static){
+                            nextGrid[i-1][j] = static;
+                        }else if(grid[i][j+1] === 0){
+                            nextGrid[i][j+1] = falling;
+                        }else{
+                            nextGrid[i][j] = static;
+                        }
+                    
+                    // Middle
                     }else{
                         let stateL = grid[i-1][j];
                         let stateR = grid[i+1][j];
@@ -97,8 +106,34 @@ function getNextGrid() {
                         let stateBR = grid[i+1][j+1];
                         let stateAL = grid[i-1][j-1];
                         let stateAR = grid[i+1][j-1];
+                        let below = grid[i][j+1];
+                        let above = grid[i][j-1];
 
-                        nextGrid[i][j] = 1;
+                        if(stateBR > 0 && stateR === 0 && stateAR === 0 
+                                && below === static
+                                && stateBL > 0 && stateL > 0
+                            ){
+                            nextGrid[i+1][j] = static;
+                            console.log("No right ONLY");
+
+                        }else if(stateBR > 0 && stateR === 0 && stateAR === 0 
+                                && below === static && above === static
+                                && stateBL > 0 && stateL === 0 && stateAL === 0
+                            ){
+                            nextGrid[i+1][j] = static;
+                            console.log("No right No left");
+                        }else if(stateBR > 0 && stateR > 0 && stateAR === 0 
+                            && below === static
+                            && stateBL > 0 && stateL === 0 && stateAL === 0
+                        ){
+                            nextGrid[i-1][j] = static;
+                            console.log("No left ONLY");
+                        
+                        }else if(grid[i][j+1] === 0){
+                            nextGrid[i][j+1] = falling;
+                        }else{
+                            nextGrid[i][j] = static;
+                        }
                         
                         
                     }
@@ -114,7 +149,6 @@ function getNextGrid() {
                             break;
                         }else{
                             freefallFlag = false;
-                            console.log("Not in freefall", k);
                         }
                     }
                     if(!freefallFlag){
@@ -166,7 +200,7 @@ function mouseDragged() {
 // createCanvas creates and renders a canvas space on index.html
 function setup() {
     createCanvas(500, 500);
-    frameRate(5);
+    frameRate(50);
     initGrid();
     //grid = getNextGrid();
 }
