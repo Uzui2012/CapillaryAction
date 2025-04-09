@@ -1,4 +1,4 @@
-// Global grid variables
+// Global grid constants & variables
 const falling = 2;
 const static = 1;
 const empty = 0;
@@ -7,6 +7,7 @@ let nextGrid;
 const squareWidth = 10;
 let cols, rows;
 
+// Makes 2D Array of size cols by rows
 function make2DArray(cols, rows) {
     let arr = new Array(cols);
     for (let i = 0; i < arr.length; i++) {
@@ -19,21 +20,22 @@ function make2DArray(cols, rows) {
     return arr;
 }
 
+// Initialises grid with a 2D array of size scaled to the cols/rows to canvas
+// dimensions.
 function initGrid() {
     cols = width / squareWidth;
     rows = height / squareWidth;
     grid = make2DArray(cols, rows)
 }
 
+// Calculates next iteration of the grid, returning that resultant grid
 function getNextGrid() {
     let nextGrid = make2DArray(cols, rows)
     for(let i = 0; i < cols; i++){
         for(let j = 0; j < rows; j++){
             let state = grid[i][j];
 
-            // Liquid is currently not in freefall
-            if(state == 1){
-
+            if(state == 1){ // Liquid is currently not in freefall
                 // Check if liquid is now in freefall
                 if(j+1 > rows){
                     nextGrid[i][j] = 1;
@@ -140,6 +142,7 @@ function getNextGrid() {
     return nextGrid;
 }
 
+// Returns a random integer between 0 and "max" argument 
 function getRandomInt(max) {
     answer = Math.floor(Math.random() * max);
     return answer;
@@ -155,6 +158,7 @@ function withinRows(j) {
     return j >= 0 && j <= rows - 1;
 }
 
+// Called when p5 detects the mouse is clicked and dragged on canvas.
 function mouseDragged() {
     let mouseCol = floor(mouseX / squareWidth);
     let mouseRow = floor(mouseY / squareWidth);
@@ -176,9 +180,8 @@ function mouseDragged() {
 // createCanvas creates and renders a canvas space on index.html
 function setup() {
     createCanvas(500, 500);
-    frameRate(600);
+    frameRate(6000);
     initGrid();
-    //grid = getNextGrid();
 }
 
 // Rendering occurs in here, 60 times a second (default)
