@@ -56,11 +56,11 @@ function getNextGrid() {
     for(let i = 0; i < cols; i++){
         for(let j = 0; j < rows; j++){
             let state = grid[i][j];
-            
-            if(state == 1){ // Liquid is currently not in freefall
+
+            // Liquid is currently not in freefall
+            if(state == 1){
+
                 // Check if liquid is now in freefall
-                
-                
                 if(j+1 > rows){
                     nextGrid[i][j] = 1;
                 }else{
@@ -72,17 +72,16 @@ function getNextGrid() {
                         let stateBR = grid[i+1][j+1];
                         let stateAR = grid[i+1][j-1];
                         let below = grid[i][j+1];
-                        
 
-                        if(stateBR > 0 && stateR === 0 && stateAR === 0 && below === static){
+                        if(stateBR > 0 && stateR === 0 && stateAR === 0 
+                            && below === static && nextGrid[i+1][j] === 0){
                             nextGrid[i+1][j] = static;
                         }else if(grid[i][j+1] === 0){
                             nextGrid[i][j+1] = falling;
                         }else{
                             nextGrid[i][j] = static;
                         }
-                        
-                        
+
                     // Right Edge
                     }else if(i+1 >= cols){
                         let stateL = grid[i-1][j];
@@ -90,7 +89,8 @@ function getNextGrid() {
                         let stateAL = grid[i-1][j-1];
                         let below = grid[i][j+1];
 
-                        if(stateBL > 0 && stateL === 0 && stateAL === 0 && below === static){
+                        if(stateBL > 0 && stateL === 0 && stateAL === 0 
+                            && below === static && nextGrid[i-1][j] === 0){
                             nextGrid[i-1][j] = static;
                         }else if(grid[i][j+1] === 0){
                             nextGrid[i][j+1] = falling;
@@ -102,13 +102,7 @@ function getNextGrid() {
                     }else{
                         let stateL = grid[i-1][j];
                         let stateR = grid[i+1][j];
-
-                        let stateBL = grid[i-1][j+1];
-                        let stateBR = grid[i+1][j+1];
-                        let stateAL = grid[i-1][j-1];
-                        let stateAR = grid[i+1][j-1];
                         let below = grid[i][j+1];
-                        let above = grid[i][j-1];
 
                         if(below === 0){
                             if(nextGrid[i][j+1] === 0){
@@ -116,7 +110,6 @@ function getNextGrid() {
                             }else{
                                 nextGrid[i][j] = falling;
                             }
-                            
                             continue;
                         }
 
@@ -129,16 +122,12 @@ function getNextGrid() {
                             if(randInt > 0){
                                 if(stateR === 0 && nextGrid[i+1][j] === 0){
                                     nextGrid[i+1][j] = static;
-                                }else if(stateL === 0 && nextGrid[i-1][j] === 0){
-                                    nextGrid[i-1][j] = static;
                                 }else{
                                     nextGrid[i][j] = static;
                                 }
                             }else{ // Try to go Left
                                 if(stateL === 0 && nextGrid[i-1][j] === 0){
                                     nextGrid[i-1][j]  = static;
-                                }else if(stateR === 0 && nextGrid[i+1][j] === 0){
-                                    nextGrid[i+1][j] = static;
                                 }else{
                                     nextGrid[i][j] = static;
                                 }
@@ -165,14 +154,12 @@ function getNextGrid() {
                         nextGrid[i][j] = static;
                     }else{
                         if (nextGrid[i][j+1] === 0){
-                            nextGrid[i][j+1] = falling;
+                            nextGrid[i][j+1] = static;
                         }else{
                             nextGrid[i][j] = static;
                         }
-                        
                     }
                 }
-
             }
         }
     }
@@ -215,7 +202,7 @@ function mouseDragged() {
 // createCanvas creates and renders a canvas space on index.html
 function setup() {
     createCanvas(500, 500);
-    frameRate(500);
+    frameRate(600);
     initGrid();
     //grid = getNextGrid();
 }
