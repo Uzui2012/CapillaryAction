@@ -1,7 +1,10 @@
 // Global grid variables
+const falling = 2;
+const static = 1;
+const empty = 0;
 let grid;
 let nextGrid;
-let squareWidth = 10;
+const squareWidth = 10;
 let cols, rows;
 
 function make2DArray(cols, rows) {
@@ -21,35 +24,6 @@ function initGrid() {
     rows = height / squareWidth;
     grid = make2DArray(cols, rows)
 }
-
-// let stateB = grid[i][j+1];
-// let stateL = grid[i-1][j];
-// let stateR = grid[i+1][j];
-// let stateBL = grid[i-1][j+1];
-// let stateBR = grid[i+1][j+1];
-
-// if(stateB == 0){
-//     if(nextGrid[i][j+1] == 0){
-//         nextGrid[i][j+1] = 1;
-//     }else{
-//         nextGrid[i][j] = 1
-//     }
-// }else{
-    
-    
-    // }else if(!stateL && !stateR && (stateBL || stateBR)){
-    //     let dir;
-    //     if(getRandomInt(2) == 0){
-    //         dir = -1
-    //     }else{
-    //         dir = 1
-    //     }
-    //     nextGrid[i + dir][j] = 1;
-//}
-
-let falling = 2;
-let static = 1;
-let empty = 0;
 
 function getNextGrid() {
     let nextGrid = make2DArray(cols, rows)
