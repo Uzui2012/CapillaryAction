@@ -1,7 +1,11 @@
 html, body {
-  margin: 0;
-  padding: 0;
+  margin: 50;
+  padding: 10;
+  background-color: grey;
+  font-family: 'JetBrains Mono';font-size: 15px;
+  color:darkslategrey;
 }
+
 
 canvas {
   display: block;
