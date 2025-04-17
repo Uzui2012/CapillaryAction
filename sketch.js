@@ -30,7 +30,7 @@ function initGrid() {
 }
 
 // Sets a stable liquid pixel on the left edge.
-function setStableLeftEdge(i, j, grid, nextGrid){
+function setStableLeftEdge(i, j, grid, nextGrid) {
     let stateR = grid[i+1][j];
     let stateBR = grid[i+1][j+1];
     let stateAR = grid[i+1][j-1];
@@ -47,7 +47,7 @@ function setStableLeftEdge(i, j, grid, nextGrid){
 }
 
 // Sets a stable liquid pixel on the right edge.
-function setStableRightEdge(i, j, grid, nextGrid){
+function setStableRightEdge(i, j, grid, nextGrid) {
     let stateL = grid[i-1][j];
     let stateBL = grid[i-1][j+1];
     let stateAL = grid[i-1][j-1];
@@ -63,8 +63,32 @@ function setStableRightEdge(i, j, grid, nextGrid){
     }
 }
 
+// Trys to move to an empty space on the left, returns true if this happened
+// and false if not.
+function tryMoveLeft(i, j, stateL, nextGrid) {
+    if(stateL === empty && nextGrid[i-1][j] === empty){
+        nextGrid[i-1][j]  = stable;
+        return true;
+    }else{
+        nextGrid[i][j] = stable;
+        return false;
+    }
+}
+
+// Trys to move to an empty space on the right, returns true if this happened
+// and false if not.
+function tryMoveRight(i, j, stateR, nextGrid) {
+    if(stateR === empty && nextGrid[i+1][j] === empty){
+        nextGrid[i+1][j] = stable;
+        return true;
+    }else{
+        nextGrid[i][j] = stable;
+        return false;
+    }
+}
+
 // Sets a stable liquid pixel in the middle.
-function setStableMiddle(i, j, grid, nextGrid){
+function setStableMiddle(i, j, grid, nextGrid) {
     let stateL = grid[i-1][j];
     let stateR = grid[i+1][j];
     let below = grid[i][j+1];
@@ -85,16 +109,12 @@ function setStableMiddle(i, j, grid, nextGrid){
         }
         // Try to go Right
         if(randInt > 0){
-            if(stateR === empty && nextGrid[i+1][j] === empty){
-                nextGrid[i+1][j] = stable;
-            }else{
-                nextGrid[i][j] = stable;
+            if(!tryMoveRight(i, j, stateR, nextGrid)){
+                //tryMoveLeft(i, j, stateL, nextGrid);
             }
         }else{ // Try to go Left
-            if(stateL === empty && nextGrid[i-1][j] === empty){
-                nextGrid[i-1][j]  = stable;
-            }else{
-                nextGrid[i][j] = stable;
+            if(!tryMoveLeft(i, j, stateL, nextGrid)){
+                //tryMoveRight(i, j, stateR, nextGrid);
             }
         }
     }else{
@@ -103,51 +123,89 @@ function setStableMiddle(i, j, grid, nextGrid){
 }
 
 // Sets a stable liquid pixel.
-function setStableLiquid(i, j, grid, nextGrid){
+function setStableLiquid(i, j, grid, nextGrid) {
     if(j+1 > rows){
         nextGrid[i][j] = stable;
+        return;
+    }
+    // Left Edge
+    if(i-1 < 0){
+        setStableLeftEdge(i, j, grid, nextGrid);
+    // Right Edge
+    }else if(i+1 >= cols){
+        setStableRightEdge(i, j, grid, nextGrid);
+    // Middle
     }else{
-        // Left Edge
-        if(i-1 < 0){
-            setStableLeftEdge(i, j, grid, nextGrid);
-        // Right Edge
-        }else if(i+1 >= cols){
-            setStableRightEdge(i, j, grid, nextGrid);
-        // Middle
-        }else{
-            setStableMiddle(i, j, grid, nextGrid);
-        }
+        setStableMiddle(i, j, grid, nextGrid);
     }
 }
 
 // Sets a falling liquid pixel.
-function setFallingLiquid(i, j, grid, nextGrid){
+function setFallingLiquid(i, j, grid, nextGrid) {
     if(j+1 >= rows){
         nextGrid[i][j] = stable;
-    }else{
-        let freefallFlag = true;
-        for(let k = j+1; k <= rows; k++){
-            if(grid[i][k] === empty){
-                freefallFlag = true;
-                break;
-            }else{
-                freefallFlag = false;
-            }
-        }
-        if(!freefallFlag){
-            nextGrid[i][j] = stable;
+    }
+    let freefallFlag = true;
+    for(let k = j+1; k <= rows; k++){
+        if(grid[i][k] === empty){
+            freefallFlag = true;
+            break;
         }else{
-            if (nextGrid[i][j+1] === empty){
-                nextGrid[i][j+1] = stable;
-            }else{
-                nextGrid[i][j] = stable;
-            }
+            freefallFlag = false;
+        }
+    }
+    if(!freefallFlag){
+        nextGrid[i][j] = stable;
+        console.log("freefalling pixel");
+    }else{
+        if (nextGrid[i][j+1] === empty){
+            nextGrid[i][j+1] = stable;
+        }else{
+            nextGrid[i][j] = stable;
         }
     }
 }
 
-function checkForCapillary(grid, row) {
-    
+// Will always just check the left two pixels for an empty followed by more
+// glass. Returning true if so, false otherwise
+function checkForCapillary(i, j, grid) {
+    // Catch left-edge edge case. 
+    if(i - 1 < 0 || i - 2 < 0){
+        return false;
+    }
+
+    if(grid[i-1][j] === empty && grid[i-2][j] === glass){
+        return true;
+    }
+    return false;
+}
+
+function setGlass(i, j, grid, nextGrid) {
+    nextGrid[i][j] = grid[i][j];
+}
+
+function applyCapillaryAction(i, j, grid, nextGrid) {
+    if(j-1 < 0 || j+1 >= rows){
+        return false;
+    }
+
+    if(grid[i][j-1] === empty && grid[i][j+1] === stable
+       && grid[i-1][j+1] === stable && grid[i+1][j+1] === stable){
+        nextGrid[i][j] = stable;
+        nextGrid[i][j+1] = empty;
+        return true;   
+    }else if(grid[i][j+1] === stable && grid[i-1][j+1] === glass 
+             && grid[i+1][j+1] === glass && grid[i][j+2] === stable){
+        nextGrid[i][j] = stable;
+        nextGrid[i][j+1] = empty;
+        return true;
+    }else if(grid[i][j+1] === empty && grid[i-1][j+1] === glass 
+             && grid[i+1][j+1] === glass && grid[i][j+2] === stable){
+        nextGrid[i][j] = stable;
+        nextGrid[i][j+1] = empty;
+        return true;
+    }
+    return false;
 }
 
 // Calculates next iteration of the grid, returning that resultant grid
@@ -163,14 +221,15 @@ function getNextGrid() {
                 case falling:
                     setFallingLiquid(i, j, grid, nextGrid);
                     break;
+                case glass:
+                    setGlass(i, j, grid, nextGrid);
+                    if(checkForCapillary(i, j, grid)){
+                        applyCapillaryAction(i-1, j, grid, nextGrid);
+                    }
+                    break;
             }
         }
     }
-
-    for(let row = 0; row < rows; row++){
-        checkForCapillary(grid, row);
-    }
-
     return nextGrid;
 }
 
@@ -200,7 +259,8 @@ function mouseDragged() {
     rowStart = mouseRow;
     for(let i = colStart; i < colStart + mSize; i++){
         for(let j = rowStart; j < rowStart + mSize; j++){
-            if (withinCols(colStart) && withinRows(rowStart)) {
+            if (withinCols(colStart) && withinRows(rowStart)
+                && grid[colStart][rowStart] === empty) {
                 grid[colStart][rowStart] = falling;
             }
         }
@@ -218,9 +278,10 @@ function initGlass() {
 // createCanvas creates and renders a canvas space on index.html
 function setup() {
     createCanvas(200, 100);
-    frameRate(60);
+    frameRate(144);
     initGrid();
     initGlass();
+    getNextGrid();
 }
 
 // Rendering occurs in here, 60 times a second (default)
@@ -254,6 +315,4 @@ function draw() {
         }
     }
     grid = getNextGrid();
-    initGlass();
-
 }
