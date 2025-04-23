@@ -1,6 +1,5 @@
 import './App.css'
-import P5Sketch from './components/P5Sketch';
-import React from 'react'
+import P5Sketch from './components/P5Sketch.tsx';
 
 function App() {
   return (

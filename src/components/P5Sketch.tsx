@@ -1,6 +1,4 @@
-import React from 'react';
 import Sketch from 'react-p5';
-
 
 function P5Sketch() {
     // Global grid constants & variables.
@@ -9,12 +7,11 @@ function P5Sketch() {
     const empty = 0;
     const glass = -1;
     const squareWidth = 5;
-    let grid;
-    let nextGrid;
-    let cols, rows;
+    let grid: any;
+    let cols: number, rows: number;
 
     // Makes 2D Array of size cols by rows.
-    function make2DArray(cols, rows) {
+    function make2DArray(cols: number, rows: number) {
         let arr = new Array(cols);
         for (let i = 0; i < arr.length; i++) {
             arr[i] = new Array(rows);
@@ -28,14 +25,14 @@ function P5Sketch() {
 
     // Initialises grid with a 2D array of size scaled to the cols/rows to canvas
     // dimensions.
-    function initGrid(width, height, squareWidth) {
+    function initGrid(width: number, height: number, squareWidth: number) {
         cols = width / squareWidth;
         rows = height / squareWidth;
         grid = make2DArray(cols, rows)
     }
 
     // Sets a stable liquid pixel on the left edge.
-    function setStableLeftEdge(i, j, grid, nextGrid) {
+    function setStableLeftEdge(i: number, j: number, grid: any, nextGrid: any) {
         let stateR = grid[i+1][j];
         let stateBR = grid[i+1][j+1];
         let stateAR = grid[i+1][j-1];
@@ -52,7 +49,7 @@ function P5Sketch() {
     }
 
     // Sets a stable liquid pixel on the right edge.
-    function setStableRightEdge(i, j, grid, nextGrid) {
+    function setStableRightEdge(i: number, j: number, grid: any, nextGrid: any) {
         let stateL = grid[i-1][j];
         let stateBL = grid[i-1][j+1];
         let stateAL = grid[i-1][j-1];
@@ -70,7 +67,7 @@ function P5Sketch() {
 
     // Trys to move to an empty space on the left, returns true if this happened
     // and false if not.
-    function tryMoveLeft(i, j, stateL, nextGrid) {
+    function tryMoveLeft(i: number, j: number, stateL: number, nextGrid: any) {
         if(stateL === empty && nextGrid[i-1][j] === empty){
             nextGrid[i-1][j]  = stable;
             return true;
@@ -82,7 +79,7 @@ function P5Sketch() {
 
     // Trys to move to an empty space on the right, returns true if this happened
     // and false if not.
-    function tryMoveRight(i, j, stateR, nextGrid) {
+    function tryMoveRight(i: number, j: number, stateR: number, nextGrid: any) {
         if(stateR === empty && nextGrid[i+1][j] === empty){
             nextGrid[i+1][j] = stable;
             return true;
@@ -93,7 +90,7 @@ function P5Sketch() {
     }
 
     // Sets a stable liquid pixel in the middle.
-    function setStableMiddle(i, j, grid, nextGrid) {
+    function setStableMiddle(i: number, j: number, grid: any, nextGrid: any) {
         let stateL = grid[i-1][j];
         let stateR = grid[i+1][j];
         let below = grid[i][j+1];
@@ -128,7 +125,7 @@ function P5Sketch() {
     }
 
     // Sets a stable liquid pixel.
-    function setStableLiquid(i, j, grid, nextGrid) {
+    function setStableLiquid(i: number, j: number, grid: any, nextGrid: any) {
         if(j+1 > rows){
             nextGrid[i][j] = stable;
             return;
@@ -146,7 +143,7 @@ function P5Sketch() {
     }
 
     // Sets a falling liquid pixel.
-    function setFallingLiquid(i, j, grid, nextGrid) {
+    function setFallingLiquid(i: number, j: number, grid: any, nextGrid: any) {
         if(j+1 >= rows){
             nextGrid[i][j] = stable;
         }
@@ -163,7 +160,7 @@ function P5Sketch() {
             nextGrid[i][j] = stable;
             //console.log("freefalling pixel");
         }else{
-            if (nextGrid[i][j+1] === empty){
+            if(nextGrid[i][j+1] === empty){
                 nextGrid[i][j+1] = stable;
             }else{
                 nextGrid[i][j] = stable;
@@ -173,7 +170,7 @@ function P5Sketch() {
 
     // Will always just check the left two pixels for an empty followed by more
     // glass. Returning true if so, false otherwise
-    function checkForCapillary(i, j, grid) {
+    function checkForCapillary(i: number, j: number, grid: any) {
         // Catch left-edge edge case. 
         if(i - 1 < 0 || i - 2 < 0){
             return false;
@@ -185,11 +182,13 @@ function P5Sketch() {
         return false;
     }
 
-    function setGlass(i, j, grid, nextGrid) {
+    // Sets glass position on the next grid.
+    function setGlass(i: number, j: number, grid: any, nextGrid: any) {
         nextGrid[i][j] = grid[i][j];
     }
 
-    function applyCapillaryAction(i, j, grid, nextGrid) {
+    // Applies algorithm for capillary action on this instance in the grid.
+    function applyCapillaryAction(i: number, j: number, grid: any, nextGrid: any) {
         if(j-1 < 0 || j+1 >= rows){
             return false;
         }
@@ -239,20 +238,19 @@ function P5Sketch() {
     }
 
     // Returns a random integer between 0 and "max" argument 
-    function getRandomInt(max) {
+    function getRandomInt(max: number) {
         return Math.floor(Math.random() * max);
     }
 
     // Check if a row is within the bounds
-    function withinCols(i) {
+    function withinCols(i: number) {
         return i >= 0 && i <= cols - 1;
     }
 
     // Check if a column is within the bounds
-    function withinRows(j) {
+    function withinRows(j: number) {
         return j >= 0 && j <= rows - 1;
     }
-
    
     // Initialises positions of glass pixels on grid
     function initGlass() {
@@ -263,7 +261,7 @@ function P5Sketch() {
     }
 
     // setup is the first thing called when p5-sketch.js is called.
-    const setup = (p5, canvasParentRef) => {
+    const setup = (p5: any, canvasParentRef: any) => {
         var canvas = p5.createCanvas(200, 100)
         canvas.parent(canvasParentRef);
         p5.frameRate(30);
@@ -272,7 +270,7 @@ function P5Sketch() {
         getNextGrid();
     }
     // Called when p5 detects the mouse is clicked and dragged on canvas.
-    const mouseDragged = (p5) => {
+    const mouseDragged = (p5: any) => {
         let mouseCol = p5.floor(p5.mouseX / squareWidth);
         let mouseRow = p5.floor(p5.mouseY / squareWidth);
         let mSize = 20;
@@ -289,7 +287,7 @@ function P5Sketch() {
     }
 
     // Called each new frame the canvas is rendered.
-    const draw = (p5) => {
+    const draw = (p5: any) => {
         let waterColour = p5.color(50, 100, 255);
         let waterfallColour =p5.color(80, 150, 255);
         let tankColour = p5.color(50, 50, 50);
