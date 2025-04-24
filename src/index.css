@@ -1,5 +1,13 @@
 :root {
-  font-family: 'JetBrains Mono';font-size: 15px; 
+  font-family: 'JetBrains Mono';
+    src: url('JetBrainsMono-Regular.eot');
+    src: url('JetBrainsMono-Regular.eot?#iefix') format('embedded-opentype'),
+        url('JetBrainsMono-Regular.woff2') format('woff2'),
+        url('JetBrainsMono-Regular.woff') format('woff'),
+        url('JetBrainsMono-Regular.ttf') format('truetype'),
+        url('JetBrainsMono-Regular.svg#JetBrainsMono-Regular') format('svg');
+  
+  font-size: 15px; 
   line-height: 1.5;
   font-weight: 400;
 
@@ -13,6 +21,7 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+
 body {
   margin: 0;
   display: flex;
@@ -21,17 +30,3 @@ body {
   min-height: 50vh;
 }
 
-h1 {
-  font-size: 2.5em;
-  line-height: 0.8;
-}
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-
-}

@@ -6,7 +6,7 @@ function P5Sketch() {
     const stable = 1;
     const empty = 0;
     const glass = -1;
-    const squareWidth = 5;
+    const squareWidth = 8;
     let grid: any;
     let cols: number, rows: number;
 
@@ -254,17 +254,17 @@ function P5Sketch() {
    
     // Initialises positions of glass pixels on grid
     function initGlass() {
-        for(let i = 5; i < 15; i++){
-            grid[22][i] = glass;
-            grid[24][i] = glass;
+        for(let i = rows - 15; i < rows - 5; i++){
+            grid[25][i] = glass;
+            grid[27][i] = glass;
         }
     }
 
     // setup is the first thing called when p5-sketch.js is called.
     const setup = (p5: any, canvasParentRef: any) => {
-        var canvas = p5.createCanvas(200, 100)
+        var canvas = p5.createCanvas(400, 200)
         canvas.parent(canvasParentRef);
-        p5.frameRate(30);
+        p5.frameRate(60);
         initGrid(canvas.width, canvas.height, squareWidth);
         initGlass();
         getNextGrid();

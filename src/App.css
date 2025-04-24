@@ -5,9 +5,18 @@
   text-align: center;
 }
 
+h1 {
+  font-size: medium;
+}
+
+p {
+  font-size: small;
+}
+
 .sketch {
-  position: absolute;
-  left: 50%;
-  top: 70%;
-  transform: translate(-50%, -50%);
+  border: 1px;
+  border-radius: 1%;
+  border-style: dashed;
+  border-color: lightslategray;
+  padding: 10px;
 }
