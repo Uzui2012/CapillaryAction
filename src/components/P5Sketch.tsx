@@ -1,5 +1,8 @@
 import Sketch from 'react-p5';
 
+/**  
+ * Exported function. Includes all simulation logic and final component.
+ */
 function P5Sketch() {
     // Global grid constants & variables.
     const falling = 2;
@@ -9,8 +12,11 @@ function P5Sketch() {
     const squareWidth = 8;
     let grid: any;
     let cols: number, rows: number;
+    let randLog: number[] = [];
 
-    // Makes 2D Array of size cols by rows.
+    /**
+     * Makes 2D Array of size cols by rows.
+     */
     function make2DArray(cols: number, rows: number) {
         let arr = new Array(cols);
         for (let i = 0; i < arr.length; i++) {
@@ -23,15 +29,19 @@ function P5Sketch() {
         return arr;
     }
 
-    // Initialises grid with a 2D array of size scaled to the cols/rows to canvas
-    // dimensions.
+    /** 
+     * Initialises grid with a 2D array of size scaled to the cols/rows to 
+     * canvas dimensions.
+     */
     function initGrid(width: number, height: number, squareWidth: number) {
         cols = width / squareWidth;
         rows = height / squareWidth;
         grid = make2DArray(cols, rows)
     }
 
-    // Sets a stable liquid pixel on the left edge.
+    /**
+     * Sets a stable liquid pixel on the left edge.
+     */
     function setStableLeftEdge(i: number, j: number, grid: any, nextGrid: any) {
         let stateR = grid[i+1][j];
         let stateBR = grid[i+1][j+1];
@@ -44,11 +54,15 @@ function P5Sketch() {
         }else if(grid[i][j+1] === empty){
             nextGrid[i][j+1] = falling;
         }else{
-            nextGrid[i][j] = stable;
+            if(!tryMoveRight(i, j, stateR, nextGrid)){
+                nextGrid[i][j] = stable;
+            }
         }
     }
 
-    // Sets a stable liquid pixel on the right edge.
+    /**
+     *  Sets a stable liquid pixel on the right edge.
+     */
     function setStableRightEdge(i: number, j: number, grid: any, nextGrid: any) {
         let stateL = grid[i-1][j];
         let stateBL = grid[i-1][j+1];
@@ -61,15 +75,20 @@ function P5Sketch() {
         }else if(grid[i][j+1] === empty){
             nextGrid[i][j+1] = falling;
         }else{
-            nextGrid[i][j] = stable;
+            if(!tryMoveLeft(i, j, stateL, nextGrid)){
+                nextGrid[i][j] = stable;
+            }
         }
     }
 
-    // Trys to move to an empty space on the left, returns true if this happened
-    // and false if not.
+    /**
+     * Trys to move to an empty space on the left, returns true if this happened
+     * and false if not.
+     */
     function tryMoveLeft(i: number, j: number, stateL: number, nextGrid: any) {
         if(stateL === empty && nextGrid[i-1][j] === empty){
-            nextGrid[i-1][j]  = stable;
+            nextGrid[i-1][j] = stable;
+            nextGrid[i][j] = empty;
             return true;
         }else{
             nextGrid[i][j] = stable;
@@ -77,11 +96,14 @@ function P5Sketch() {
         }
     }
 
-    // Trys to move to an empty space on the right, returns true if this happened
-    // and false if not.
+    /**
+     *   Trys to move to an empty space on the right, returns true if this happened
+     *   and false if not.
+     */
     function tryMoveRight(i: number, j: number, stateR: number, nextGrid: any) {
         if(stateR === empty && nextGrid[i+1][j] === empty){
             nextGrid[i+1][j] = stable;
+            nextGrid[i][j] = empty;
             return true;
         }else{
             nextGrid[i][j] = stable;
@@ -89,7 +111,9 @@ function P5Sketch() {
         }
     }
 
-    // Sets a stable liquid pixel in the middle.
+    /**
+     * Sets a stable liquid pixel in the middle.
+     */
     function setStableMiddle(i: number, j: number, grid: any, nextGrid: any) {
         let stateL = grid[i-1][j];
         let stateR = grid[i+1][j];
@@ -106,11 +130,17 @@ function P5Sketch() {
 
         if(stateL === empty || stateR === empty){
             let randInt = getRandomInt(2);
-            if(randInt === 0){
-                randInt -= 1;
-            }
+
+            randLog.push(randInt);
+
+            const c: number[] = [];
+            randLog.forEach(ele => {
+                c[ele] = (c[ele] || 0) + 1;
+            });
+            //console.log(c);
+
             // Try to go Right
-            if(randInt > 0){
+            if(randInt === 1){
                 if(!tryMoveRight(i, j, stateR, nextGrid)){
                     //tryMoveLeft(i, j, stateL, nextGrid);
                 }
@@ -124,7 +154,9 @@ function P5Sketch() {
         }
     }
 
-    // Sets a stable liquid pixel.
+    /** 
+     * Sets a stable liquid pixel.
+     */
     function setStableLiquid(i: number, j: number, grid: any, nextGrid: any) {
         if(j+1 > rows){
             nextGrid[i][j] = stable;
@@ -142,7 +174,9 @@ function P5Sketch() {
         }
     }
 
-    // Sets a falling liquid pixel.
+    /**
+     * Sets a falling liquid pixel.
+     */
     function setFallingLiquid(i: number, j: number, grid: any, nextGrid: any) {
         if(j+1 >= rows){
             nextGrid[i][j] = stable;
@@ -168,8 +202,10 @@ function P5Sketch() {
         }
     }
 
-    // Will always just check the left two pixels for an empty followed by more
-    // glass. Returning true if so, false otherwise
+    /** 
+     * Will always just check the left two pixels for an empty followed by more
+     * glass. Returning true if so, false otherwise 
+     */
     function checkForCapillary(i: number, j: number, grid: any) {
         // Catch left-edge edge case. 
         if(i - 1 < 0 || i - 2 < 0){
@@ -182,12 +218,16 @@ function P5Sketch() {
         return false;
     }
 
-    // Sets glass position on the next grid.
+    /**  
+     * Sets glass position on the next grid.
+     */
     function setGlass(i: number, j: number, grid: any, nextGrid: any) {
         nextGrid[i][j] = grid[i][j];
     }
 
-    // Applies algorithm for capillary action on this instance in the grid.
+    /**  
+     * Applies algorithm for capillary action on this instance in the grid. 
+     */
     function applyCapillaryAction(i: number, j: number, grid: any, nextGrid: any) {
         if(j-1 < 0 || j+1 >= rows){
             return false;
@@ -212,7 +252,9 @@ function P5Sketch() {
         return false;
     }
 
-    // Calculates next iteration of the grid, returning that resultant grid
+    /**  
+     * Calculates next iteration of the grid, returning that resultant grid. 
+     */
     function getNextGrid() {
         let nextGrid = make2DArray(cols, rows)
         for(let i = 0; i < cols; i++){
@@ -237,22 +279,30 @@ function P5Sketch() {
         return nextGrid;
     }
 
-    // Returns a random integer between 0 and "max" argument 
+    /**  
+     * Returns a random integer between 0 and "max" argument.
+     */
     function getRandomInt(max: number) {
-        return Math.floor(Math.random() * max);
+        return Math.floor(Math.random() * max + 1);
     }
 
-    // Check if a row is within the bounds
+    /**  
+     * Check if a row is within the bounds.
+     */
     function withinCols(i: number) {
         return i >= 0 && i <= cols - 1;
     }
 
-    // Check if a column is within the bounds
+    /**  
+     * Check if a column is within the bounds.
+     */
     function withinRows(j: number) {
         return j >= 0 && j <= rows - 1;
     }
    
-    // Initialises positions of glass pixels on grid
+    /**  
+     * Initialises positions of glass pixels on grid.
+     */
     function initGlass() {
         for(let i = rows - 15; i < rows - 5; i++){
             grid[25][i] = glass;
@@ -260,7 +310,9 @@ function P5Sketch() {
         }
     }
 
-    // setup is the first thing called when p5-sketch.js is called.
+    /**  
+     * Setup is the first thing called when p5-sketch.js is called.
+     */
     const setup = (p5: any, canvasParentRef: any) => {
         var canvas = p5.createCanvas(400, 200)
         canvas.parent(canvasParentRef);
@@ -269,7 +321,10 @@ function P5Sketch() {
         initGlass();
         getNextGrid();
     }
-    // Called when p5 detects the mouse is clicked and dragged on canvas.
+    
+    /**  
+     * Called when p5 detects the mouse is clicked and dragged on canvas.
+     */
     const mouseDragged = (p5: any) => {
         let mouseCol = p5.floor(p5.mouseX / squareWidth);
         let mouseRow = p5.floor(p5.mouseY / squareWidth);
@@ -286,7 +341,9 @@ function P5Sketch() {
         }
     }
 
-    // Called each new frame the canvas is rendered.
+    /**  
+     * Called each new frame the canvas is rendered.
+     */
     const draw = (p5: any) => {
         let waterColour = p5.color(50, 100, 255);
         let waterfallColour =p5.color(80, 150, 255);
